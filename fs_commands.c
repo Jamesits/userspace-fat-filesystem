@@ -8,7 +8,7 @@
 #include <ctype.h>
 #include <string.h>
 
-#define MAX_PATH_LEN
+#define MAX_PATH_LEN 256
 struct fat_volume * volume = NULL;
 char pwd[MAX_PATH_LEN] = "/";
 
@@ -55,7 +55,9 @@ int fs_ls(int argc, char **argv)
     fs_mounted_or_fail();
     char path[MAX_PATH_LEN] = {0};
 	struct fat_file *file;
-    DEBUG("dest: %s\n", argv[1]);
+    
+    // == get absolute path
+    DEBUG("dest: %s", argv[1]);
     
     // note about inline_strcpy: use standard strcpy will trigger a out of bound detection
     if (!argv[1]) {
@@ -74,11 +76,19 @@ int fs_ls(int argc, char **argv)
     }
 
     DEBUG("final path: %s", path);
+    
+    // == end get absolute path
+    
 	file = fat_pathname_to_file(volume, path);
-	if (!file)
-		return -errno;
-	if (!fat_file_is_directory(file))
-		return -ENOTDIR;
+    if (!file) {
+        DEBUG("%s not found", path);
+        return -errno;
+    }
+    if (!fat_file_is_directory(file)) {
+        DEBUG("%s is not a directory", path);
+        return -ENOTDIR;
+        
+    }
 	fat_file_inc_num_times_opened(file);
 
 	struct fat_file *child;
@@ -95,4 +105,62 @@ int fs_ls(int argc, char **argv)
     }
 	fat_file_dec_num_times_opened(file);
 	return 0;
+}
+
+int fs_cd(int argc, char **argv)
+{
+    fs_mounted_or_fail();
+    struct fat_file *file;
+    char path[MAX_PATH_LEN] = {0};
+    
+    // == get absolute path
+    DEBUG("dest: %s", argv[1]);
+    
+    // note about inline_strcpy: use standard strcpy will trigger a out of bound detection
+    if (!argv[1]) {
+        // empty or invalid path
+        DEBUG("got invalid path");
+        inline_strcpy(path, pwd);
+    } else if (argv[1][0] == '/') {
+        // absolute path
+        DEBUG("got absolute path length=%lu", strlen(argv[1]));
+        inline_strcpy(path, argv[1]);
+    } else {
+        // relative path
+        DEBUG("got relative path length=%lu", strlen(argv[1]));
+        inline_strcpy(path, pwd);
+        if (path[strlen(path) - 1] != '/') {
+            path[strlen(path)] = '/';
+            inline_strcpy(path + strlen(pwd) + 1, argv[1]);
+        } else {
+            inline_strcpy(path + strlen(pwd), argv[1]);
+        }
+    }
+    
+    DEBUG("final path: %s", path);
+    
+    // == end get absolute path
+    
+    file = fat_pathname_to_file(volume, path);
+    if (!file) {
+        DEBUG("%s not found", path);
+        fprintf(stderr, "Wrong directory %s", path);
+        return -errno;
+    }
+    if (!fat_file_is_directory(file)) {
+        DEBUG("%s is not a directory", path);
+        fprintf(stderr, "%s is not a directory", path);
+        return -ENOTDIR;
+        
+    }
+    inline_strcpy(pwd, path);
+    
+    return 0;
+}
+
+int fs_pwd(int argc, char **argv)
+{
+    fs_mounted_or_fail();
+    puts(pwd);
+    return 0;
 }
