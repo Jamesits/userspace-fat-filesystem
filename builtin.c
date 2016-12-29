@@ -11,6 +11,7 @@ internal_command builtins[] = {
     BUILTIN_DEF(fs_ls, "ls"),
     BUILTIN_DEF(fs_cd, "cd"),
     BUILTIN_DEF(fs_pwd, "pwd"),
+    BUILTIN_DEF(fs_cat, "cat"),
 };
 
 int builtins_count() { return sizeof(builtins) / sizeof(builtins[0]); }
@@ -31,6 +32,7 @@ int jsh_cd(int argc, char **argv)
 
 int jsh_exit(int argc, char **argv)
 {
+    fs_umount(0, 0);
 	config.shuttingdown = true;
 	return 0;
 }
