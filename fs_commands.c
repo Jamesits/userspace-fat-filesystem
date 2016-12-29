@@ -220,5 +220,8 @@ int fs_cat(int argc, char **argv)
     
     for (int i = 0; i < attr->st_size; ++i) putchar(buf[i]);
     printf("\n");
+    
+    free(buf);
+    free(attr);
     return 0;
 }
