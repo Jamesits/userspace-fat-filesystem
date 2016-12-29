@@ -13,6 +13,7 @@ internal_command builtins[] = {
     BUILTIN_DEF(fs_pwd, "pwd"),
     BUILTIN_DEF(fs_cat, "cat"),
     BUILTIN_DEF(fs_create, "new"),
+    BUILTIN_DEF(fs_format, "format"),
 };
 
 int builtins_count() { return sizeof(builtins) / sizeof(builtins[0]); }

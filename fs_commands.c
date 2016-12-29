@@ -7,6 +7,8 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #define MAX_PATH_LEN 256
 struct fat_volume * volume = NULL;
@@ -23,6 +25,8 @@ static inline void inline_strcpy(char *s1, char *s2)
 int fs_create(int argc, char **argv)
 {
     char *mem = malloc(10485760); // this is 10MB space
+    
+    // write boot sector
     struct fat_boot_sector_disk *bootsec = (struct fat_boot_sector_disk *)mem;
     bootsec->jump_insn[0] = 0xEB;
     bootsec->jump_insn[1] = 0x3C;
@@ -30,8 +34,8 @@ int fs_create(int argc, char **argv)
     memcpy(bootsec->oem_name, "JAMESFAT", 8); // must be 8 bytes, append 0x20 if less
     bootsec->bytes_per_sector = 512;
     bootsec->sectors_per_cluster = 2;
-    bootsec->reserved_sectors = 0;
-    bootsec->num_tables = 1;
+    bootsec->reserved_sectors = 1;
+    bootsec->num_tables = 2;
     bootsec->max_root_entries = 512;
     bootsec->total_sectors = 20480;
     bootsec->media_descriptor = 0xF0;
@@ -79,12 +83,42 @@ int fs_umount(int argc, char **argv)
 {
     fs_mounted_or_fail();
     fat_unmount(volume);
+    volume = NULL;
     return 0;
 }
 
 int fs_format(int argc, char **argv)
 {
-    volume->root;
+    fs_mounted_or_fail();
+    // set all sectors as free
+    u16 *fat_table = volume->fat_map;
+    for (int i = 0; i < volume->bytes_per_sector; ++i) {
+        fat_table[i] = 0;
+    }
+    
+    // find root entry location
+    size_t root_pos = volume->data_start_offset - volume->max_root_entries * sizeof(struct fat_dir_entry_disk);
+    DEBUG("Root directory start position: %zu", root_pos);
+    long pos = lseek(volume->fd, root_pos, SEEK_SET);
+    DEBUG("Seeked to position %ld", pos);
+    
+    // try add something
+    struct fat_dir_entry_disk rootdir;
+    memcpy(rootdir.base_name, "TESTFOLD", 8);
+    memcpy(rootdir.extension, "TXT", 3);
+    rootdir.attribs = 0;
+    rootdir.reserved = 0;
+    rootdir.create_date = 0;
+    rootdir.create_time = 0;
+    rootdir.create_time_fine_res = 0;
+    rootdir.last_access_date = 0;
+    rootdir.file_access_bitmap = 0;
+    rootdir.last_modified_date = 0;
+    rootdir.last_modified_time = 0;
+    rootdir.start_cluster = 2;
+    rootdir.file_size = 256;
+    write(volume->fd, &rootdir, sizeof(rootdir));
+
     return 0;
 }
 

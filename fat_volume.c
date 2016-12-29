@@ -383,7 +383,7 @@ fat_unmount(struct fat_volume *vol)
 	ret = close(vol->fd);
 	munmap(vol->fat_map, (size_t)vol->sectors_per_fat << vol->sector_order);
 	fat_destroy_file_tree(&vol->root);
-	free(vol);
+    free(vol);
 	return ret;
 }
 
