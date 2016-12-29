@@ -8,6 +8,7 @@ internal_command builtins[] = {
     BUILTIN_DEF(jsh_about, "about"),
     BUILTIN_DEF(fs_mount, "mount"),
     BUILTIN_DEF(fs_umount, "umount"),
+    BUILTIN_DEF(fs_ls, "ls"),
 };
 
 int builtins_count() { return sizeof(builtins) / sizeof(builtins[0]); }
