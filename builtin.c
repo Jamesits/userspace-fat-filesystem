@@ -14,6 +14,7 @@ internal_command builtins[] = {
     BUILTIN_DEF(fs_cat, "cat"),
     BUILTIN_DEF(fs_create, "new"),
     BUILTIN_DEF(fs_format, "format"),
+    BUILTIN_DEF(fs_touch, "touch"),
 };
 
 int builtins_count() { return sizeof(builtins) / sizeof(builtins[0]); }

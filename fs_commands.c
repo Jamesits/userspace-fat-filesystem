@@ -9,6 +9,10 @@
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/uio.h>
+#include <unistd.h>
 
 #define MAX_PATH_LEN 256
 struct fat_volume * volume = NULL;
@@ -106,8 +110,8 @@ int fs_format(int argc, char **argv)
     DEBUG("Seeked to position %ld", pos);
     
     // clear all root entries
-    u8 zeros = 0;
-    for (int i = 0; i < volume->max_root_entries * sizeof(struct fat_dir_entry_disk); ++i)
+    u8 zeros = 0xE5; // unused directory entry start bit
+    for (size_t i = 0; i < volume->max_root_entries * sizeof(struct fat_dir_entry_disk); ++i)
         write(volume->fd, &zeros, sizeof(zeros));
 
     return 0;
@@ -242,6 +246,7 @@ int fs_pwd(int argc, char **argv)
 
 int fs_cat(int argc, char **argv)
 {
+    fs_mounted_or_fail();
     struct fat_file *file;
     char path[MAX_PATH_LEN] = {0};
 
@@ -301,23 +306,36 @@ int fs_cat(int argc, char **argv)
 }
 
 
-int fs_type(int argc, char **argv) {
-    //    // try add something
-    //    struct fat_dir_entry_disk rootdir;
-    //    memcpy(rootdir.base_name, "TESTFOLD", 8);
-    //    memcpy(rootdir.extension, "TXT", 3);
-    //    rootdir.attribs = 0;
-    //    rootdir.reserved = 0;
-    //    rootdir.create_date = 0;
-    //    rootdir.create_time = 0;
-    //    rootdir.create_time_fine_res = 0;
-    //    rootdir.last_access_date = 0;
-    //    rootdir.file_access_bitmap = 0;
-    //    rootdir.last_modified_date = 0;
-    //    rootdir.last_modified_time = 0;
-    //    rootdir.start_cluster = 2;
-    //    rootdir.file_size = 256; // in bytes
-    //    write(volume->fd, &rootdir, sizeof(rootdir));
+int fs_touch(int argc, char **argv) {
+    fs_mounted_or_fail();
     
+    // find root entry location
+    size_t root_pos = volume->data_start_offset - volume->max_root_entries * sizeof(struct fat_dir_entry_disk);
+    DEBUG("Root directory start position: %zu", root_pos);
+    long pos = lseek(volume->fd, root_pos, SEEK_SET);
+    DEBUG("Seeked to position %ld", pos);
+    
+    int entry_count = -1;
+    struct fat_dir_entry_disk *rootdir = malloc(sizeof(struct fat_dir_entry_disk));
+    do {
+        ++entry_count;
+        read(volume->fd, rootdir, sizeof(struct fat_dir_entry_disk));
+    } while (*(u8*)rootdir != 0xE5);
+    // TODO: out of bound check
+    memcpy(rootdir->base_name, argv[1], 8);
+    memcpy(rootdir->extension, "TXT", 3);
+    rootdir->attribs = 0;
+    rootdir->reserved = 0;
+    rootdir->create_date = 0;
+    rootdir->create_time = 0;
+    rootdir->create_time_fine_res = 0;
+    rootdir->last_access_date = 0;
+    rootdir->file_access_bitmap = 0;
+    rootdir->last_modified_date = 0;
+    rootdir->last_modified_time = 0;
+    rootdir->start_cluster = 2;
+    rootdir->file_size = 0; // in bytes
+    lseek(volume->fd, root_pos + entry_count * sizeof(struct fat_dir_entry_disk), SEEK_SET);
+    write(volume->fd, rootdir, sizeof(struct fat_dir_entry_disk));
     return 0;
 }
