@@ -17,5 +17,5 @@ int fs_touch(int argc, char **argv);
 int fs_cat(int argc, char **argv);
 int fs_print(int argc, char **argv);
 int fs_umount(int argc, char **argv);
-
+int fs_create(int argc, char **argv);
 #endif

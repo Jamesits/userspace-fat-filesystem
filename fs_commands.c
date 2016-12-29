@@ -19,6 +19,44 @@ static inline void inline_strcpy(char *s1, char *s2)
     while ((*s1++ = *s2++));
 }
 
+int fs_create(int argc, char **argv)
+{
+    char *mem = malloc(10485760); // this is 10MB space
+    struct fat_boot_sector_disk *bootsec = (struct fat_boot_sector_disk *)mem;
+    bootsec->jump_insn[0] = 0xEB;
+    bootsec->jump_insn[1] = 0x3C;
+    bootsec->jump_insn[2] = 0x90;
+    memcpy(bootsec->oem_name, "JAMESFAT", 8); // must be 8 bytes, append 0x20 if less
+    bootsec->bytes_per_sector = 512;
+    bootsec->sectors_per_cluster = 2;
+    bootsec->reserved_sectors = 0;
+    bootsec->num_tables = 1;
+    bootsec->max_root_entries = 512;
+    bootsec->total_sectors = 20480;
+    bootsec->media_descriptor = 0xF0;
+    bootsec->sectors_per_fat = 40;
+    bootsec->sectors_per_track = 32;
+    bootsec->num_heads = 16;
+    bootsec->hidden_sectors = 0;
+    bootsec->ebpb.nonfat32_ebpb.physical_drive_num = 0;
+    bootsec->ebpb.nonfat32_ebpb.extended_boot_sig = 41;
+    bootsec->ebpb.nonfat32_ebpb.volume_id = 0; // 4 byte ID
+    memcpy(bootsec->ebpb.nonfat32_ebpb.volume_label, "JAMESFAT   ", 11);
+    memcpy(bootsec->ebpb.nonfat32_ebpb.fs_type, "FAT16   ", 8);
+    
+    // boot sector end at 512Bytes
+    mem[0x1FE] = 0x55;
+    mem[0x1FF] = 0xAA;
+    
+    FILE * file= fopen(argv[1], "wb");
+    if (file != NULL) {
+        fwrite(mem, 10485760, 1, file);
+        fclose(file);
+    }
+    free(mem);
+    return 0;
+}
+
 int fs_mount(int argc, char **argv)
 {
     if (volume) {
