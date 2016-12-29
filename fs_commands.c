@@ -44,11 +44,15 @@ int fs_create(int argc, char **argv)
     bootsec->ebpb.nonfat32_ebpb.volume_id = 0; // 4 byte ID
     memcpy(bootsec->ebpb.nonfat32_ebpb.volume_label, "JAMESFAT   ", 11);
     memcpy(bootsec->ebpb.nonfat32_ebpb.fs_type, "FAT16   ", 8);
-    
+
+    // this is some boot program
+    const char code[] = "\xfa\x31\xc0\x8e\xd0\xbc\x00\x7c\xfb\x8e\xd8\xe8\x00\x00\x5e\x83\xc6\x19\xbb\x07\x00\xfc\xac\x84\xc0\x74\x06\xb4\x0e\xcd\x10\xeb\xf5\x30\xe4\xcd\x16\xcd\x19\x0d\x0aThis program cannot be run in DOS mode\x0d\x0aPress any key to reboot\x0d\x0a";
+
+    strcpy(mem + 62, code);
     // boot sector end at 512Bytes
     mem[0x1FE] = 0x55;
     mem[0x1FF] = 0xAA;
-    
+
     FILE * file= fopen(argv[1], "wb");
     if (file != NULL) {
         fwrite(mem, 10485760, 1, file);
@@ -75,6 +79,12 @@ int fs_umount(int argc, char **argv)
 {
     fs_mounted_or_fail();
     fat_unmount(volume);
+    return 0;
+}
+
+int fs_format(int argc, char **argv)
+{
+    volume->root;
     return 0;
 }
 
