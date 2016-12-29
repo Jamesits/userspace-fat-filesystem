@@ -5,10 +5,19 @@
 #include "fat_volume.h"
 #include <errno.h>
 #include <sys/stat.h>
+#include <ctype.h>
+#include <string.h>
 
+#define MAX_PATH_LEN
 struct fat_volume * volume = NULL;
+char pwd[MAX_PATH_LEN] = "/";
 
 #define fs_mounted_or_fail() if (!volume) { DEBUG("Error: There is no mounted volume!\n"); return -1; }
+
+static inline void inline_strcpy(char *s1, char *s2)
+{
+    while ((*s1++ = *s2++));
+}
 
 int fs_mount(int argc, char **argv)
 {
@@ -44,13 +53,27 @@ char get_file_type_char(mode_t m) {
 int fs_ls(int argc, char **argv)
 {
     fs_mounted_or_fail();
-    char *path;
+    char path[MAX_PATH_LEN] = {0};
 	struct fat_file *file;
+    DEBUG("dest: %s\n", argv[1]);
+    
+    // note about inline_strcpy: use standard strcpy will trigger a out of bound detection
+    if (!argv[1]) {
+        // empty or invalid path
+        DEBUG("got invalid path");
+        inline_strcpy(path, pwd);
+    } else if (argv[1][0] == '/') {
+        // absolute path
+        DEBUG("got absolute path length=%lu", strlen(argv[1]));
+        inline_strcpy(path, argv[1]);
+    } else {
+        // relative path
+        DEBUG("got relative path length=%lu", strlen(argv[1]));
+        inline_strcpy(path, pwd);
+        inline_strcpy(path + strlen(pwd), argv[1]);
+    }
 
-    // TODO: handle working directory
-    path = argv[1];
-
-    DEBUG("path: %s\n", path);
+    DEBUG("final path: %s", path);
 	file = fat_pathname_to_file(volume, path);
 	if (!file)
 		return -errno;

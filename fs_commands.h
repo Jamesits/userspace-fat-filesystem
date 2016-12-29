@@ -9,6 +9,7 @@ extern struct fat_volume * volume;
 int fs_mount(int argc, char **argv);
 int fs_format(int argc, char **argv);
 int fs_ls(int argc, char **argv);
+int fs_pwd(int argc, char **argv);
 int fs_cd(int argc, char **argv);
 int fs_mkdir(int argc, char **argv);
 int fs_rm(int argc, char **argv);

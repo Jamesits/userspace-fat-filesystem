@@ -66,7 +66,7 @@ void jsh_repl(FILE *input, bool quiet)
 			continue;
 		}
 		// ignore empty line
-		if (strlen(line) == 0) continue;
+		if (strlen(line) == 0) goto cont;
 		// fprintf(stderr, "[input stream]Get line: %s\n", line);
 		char **token = tokenize_line(line);
 		// for (int i = 0; token[i]; ++i)
@@ -83,6 +83,7 @@ void jsh_repl(FILE *input, bool quiet)
 		} else {
 			fprintf(config.f_err, "jsh: tokenizer fatal\n");
 		}
+		cont:
 		free(line);
 	} while(!config.shuttingdown);
 }
