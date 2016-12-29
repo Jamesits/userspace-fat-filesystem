@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 		for (int i = 1; i < argc; ++i)
 			if (load_script(argv[i]))
 				fprintf(config.f_err, "jsh: cannot execute script %s\n", argv[i]);
-	} else {	
+	} else {
 		// enter REPL
 		jsh_repl(config.f_in, false);
 	}
@@ -65,6 +65,8 @@ void jsh_repl(FILE *input, bool quiet)
 			config.shuttingdown = true;
 			continue;
 		}
+		// ignore empty line
+		if (strlen(line) == 0) continue;
 		// fprintf(stderr, "[input stream]Get line: %s\n", line);
 		char **token = tokenize_line(line);
 		// for (int i = 0; token[i]; ++i)
