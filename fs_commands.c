@@ -55,10 +55,10 @@ int fs_ls(int argc, char **argv)
     fs_mounted_or_fail();
     char path[MAX_PATH_LEN] = {0};
 	struct fat_file *file;
-    
+
     // == get absolute path
     DEBUG("dest: %s", argv[1]);
-    
+
     // note about inline_strcpy: use standard strcpy will trigger a out of bound detection
     if (!argv[1]) {
         // empty or invalid path
@@ -76,9 +76,9 @@ int fs_ls(int argc, char **argv)
     }
 
     DEBUG("final path: %s", path);
-    
+
     // == end get absolute path
-    
+
 	file = fat_pathname_to_file(volume, path);
     if (!file) {
         DEBUG("%s not found", path);
@@ -87,7 +87,7 @@ int fs_ls(int argc, char **argv)
     if (!fat_file_is_directory(file)) {
         DEBUG("%s is not a directory", path);
         return -ENOTDIR;
-        
+
     }
 	fat_file_inc_num_times_opened(file);
 
@@ -113,10 +113,10 @@ int fs_cd(int argc, char **argv)
     fs_mounted_or_fail();
     struct fat_file *file;
     char path[MAX_PATH_LEN] = {0};
-    
+
     // == get absolute path
     DEBUG("dest: %s", argv[1]);
-    
+
     // note about inline_strcpy: use standard strcpy will trigger a out of bound detection
     if (!argv[1]) {
         // empty or invalid path
@@ -137,11 +137,11 @@ int fs_cd(int argc, char **argv)
             inline_strcpy(path + strlen(pwd), argv[1]);
         }
     }
-    
+
     DEBUG("final path: %s", path);
-    
+
     // == end get absolute path
-    
+
     file = fat_pathname_to_file(volume, path);
     if (!file) {
         DEBUG("%s not found", path);
@@ -152,10 +152,10 @@ int fs_cd(int argc, char **argv)
         DEBUG("%s is not a directory", path);
         fprintf(stderr, "%s is not a directory", path);
         return -ENOTDIR;
-        
+
     }
     inline_strcpy(pwd, path);
-    
+
     return 0;
 }
 
@@ -170,10 +170,10 @@ int fs_cat(int argc, char **argv)
 {
     struct fat_file *file;
     char path[MAX_PATH_LEN] = {0};
-    
+
     // == get absolute path
     DEBUG("dest: %s", argv[1]);
-    
+
     // note about inline_strcpy: use standard strcpy will trigger a out of bound detection
     if (!argv[1]) {
         // empty or invalid path
@@ -194,11 +194,11 @@ int fs_cat(int argc, char **argv)
             inline_strcpy(path + strlen(pwd), argv[1]);
         }
     }
-    
+
     DEBUG("final path: %s", path);
-    
+
     // == end get absolute path
-    
+
     file = fat_pathname_to_file(volume, path);
     if (!file)
         return -errno;
@@ -210,17 +210,17 @@ int fs_cat(int argc, char **argv)
     struct stat *attr = malloc(sizeof(struct stat));
     fat_file_to_stbuf(file, attr);
     fat_file_inc_num_times_opened(file);
-    
+
     char *buf = malloc(attr->st_size + 1);
     fat_file_pread(file, buf, attr->st_size, 0);
-    
+
     fat_file_dec_num_times_opened(file);
     if (file->num_times_opened == 0)
         fat_file_free_cluster_cache(file);
-    
+
     for (int i = 0; i < attr->st_size; ++i) putchar(buf[i]);
     printf("\n");
-    
+
     free(buf);
     free(attr);
     return 0;
