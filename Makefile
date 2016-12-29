@@ -4,7 +4,8 @@ OBJ = $(SRC:.c=.o)
 CC = clang
 INCLUDE =
 LINKPARAM =
-CFLAGS = -O0 -Wall -Wextra -Wno-unused-parameter -g3 -D_FILE_OFFSET_BITS=64
+CFLAGS = -O2 -DNDEBUG -D_FILE_OFFSET_BITS=64
+#CFLAGS = -O0 -Wall -Wextra -Wno-unused-parameter -g3 -D_FILE_OFFSET_BITS=64
 RM_FLAGS =
 
 : $(PROGRAM)
