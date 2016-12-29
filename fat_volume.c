@@ -14,62 +14,6 @@
 #include "fat_util.h"
 #include "fat_volume.h"
 
-/* Extended BIOS Parameter Block (non-FAT-32 version) */
-struct nonfat32_ebpb {
-	u8 physical_drive_num;
-	u8 reserved;
-	u8 extended_boot_sig;
-	le32 volume_id;
-	char volume_label[11];
-	char fs_type[8];
-} __attribute__((packed));
-
-/* Extended BIOS Parameter Block (FAT-32 version) */
-struct fat32_ebpb {
-	le32 sectors_per_fat;
-	le16 drive_description;
-	le16 version;
-	le32 root_dir_start_cluster;
-	le16 fs_info_sector;
-	le16 alt_boot_sector;
-	u8 reserved[12];
-} __attribute__((packed));
-
-/* On-disk format of the FAT boot sector, starting from the very first byte of
- * the device. */
-struct fat_boot_sector_disk {
-	/* Jump instruction for the bootloader (ignored) */
-	u8 jump_insn[3];
-
-	/* Standard boot sector info */
-	char oem_name[8];
-
-	/* DOS 2.0 BIOS Parameter Block (13 bytes) */
-	le16 bytes_per_sector;
-	u8   sectors_per_cluster;
-	le16 reserved_sectors;
-	u8   num_tables;
-	le16 max_root_entries;
-	le16 total_sectors;
-	u8   media_descriptor;
-	le16 sectors_per_fat;
-
-	/* DOS 3.31 BIOS Parameter Block (12 bytes) */
-	le16 sectors_per_track;
-	le16 num_heads;
-	le32 hidden_sectors;
-	le32 total_sectors_32;
-
-	/* Extended BIOS Parameter Block (different depending on whether the FAT
-	 * version is FAT32 or not) */
-	union __attribute__((packed)) {
-		struct __attribute__((packed)) {
-			struct fat32_ebpb fat32_ebpb;
-			struct nonfat32_ebpb nonfat32_ebpb;
-		} fat32;
-		struct nonfat32_ebpb nonfat32_ebpb;
-	} ebpb;
-} __attribute__((packed));
 
 /* Read DOS 2.0-compatible "BIOS Parameter Block" (13 bytes) */
 static int
