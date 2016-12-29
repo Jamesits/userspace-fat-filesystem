@@ -1,9 +1,9 @@
 /*  FUSE: Filesystem in Userspace
-  Copyright (C) 2001-2007  Miklos Szeredi <miklos@szeredi.hu>
+   Copyright (C) 2001-2007  Miklos Szeredi <miklos@szeredi.hu>
 
-  This program can be distributed under the terms of the GNU LGPLv2.
-  See the file COPYING.LIB.
-*/
+   This program can be distributed under the terms of the GNU LGPLv2.
+   See the file COPYING.LIB.
+ */
 
 #ifndef FUSE_COMMON_H_
 #define FUSE_COMMON_H_
@@ -15,12 +15,12 @@
 
 #define FUSE_MINOR_VERSION 0
 
-#define FUSE_MAKE_VERSION(maj, min)  ((maj) * 10 + (min))
+#define FUSE_MAKE_VERSION(maj, min) ((maj) * 10 + (min))
 #define FUSE_VERSION FUSE_MAKE_VERSION(FUSE_MAJOR_VERSION, FUSE_MINOR_VERSION)
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif // ifdef __cplusplus
 
 struct fuse_file_info {
     int flags;
@@ -50,10 +50,9 @@ struct fuse_file_info {
 };
 
 
-
 /**************************************************************************
- * Capability bits for 'fuse_conn_info.capable' and 'fuse_conn_info.want' *
- **************************************************************************/
+* Capability bits for 'fuse_conn_info.capable' and 'fuse_conn_info.want' *
+**************************************************************************/
 
 #define FUSE_CAP_ASYNC_READ     (1 << 0)
 
@@ -130,25 +129,25 @@ struct fuse_conn_info_opts;
 
 
 /* ----------------------------------------------------------- *
- * Data buffer                             *
- * ----------------------------------------------------------- */
+* Data buffer                             *
+* ----------------------------------------------------------- */
 
 enum fuse_buf_flags {
-    FUSE_BUF_IS_FD      = (1 << 1),
+    FUSE_BUF_IS_FD = (1 << 1),
 
-    FUSE_BUF_FD_SEEK    = (1 << 2),
+    FUSE_BUF_FD_SEEK = (1 << 2),
 
-    FUSE_BUF_FD_RETRY   = (1 << 3),
+    FUSE_BUF_FD_RETRY = (1 << 3),
 };
 
 enum fuse_buf_copy_flags {
-    FUSE_BUF_NO_SPLICE  = (1 << 1),
+    FUSE_BUF_NO_SPLICE = (1 << 1),
 
-    FUSE_BUF_FORCE_SPLICE   = (1 << 2),
+    FUSE_BUF_FORCE_SPLICE = (1 << 2),
 
-    FUSE_BUF_SPLICE_MOVE    = (1 << 3),
+    FUSE_BUF_SPLICE_MOVE = (1 << 3),
 
-    FUSE_BUF_SPLICE_NONBLOCK= (1 << 4),
+    FUSE_BUF_SPLICE_NONBLOCK = (1 << 4),
 };
 
 struct fuse_buf {
@@ -174,23 +173,23 @@ struct fuse_bufvec {
 };
 
 /* Initialize bufvec with a single buffer of given size */
-#define FUSE_BUFVEC_INIT(size__)                \
-    ((struct fuse_bufvec) {                 \
-        /* .count= */ 1,                \
-        /* .idx =  */ 0,                \
-        /* .off =  */ 0,                \
-        /* .buf =  */ { /* [0] = */ {           \
-            /* .size =  */ (size__),        \
-            /* .flags = */ (enum fuse_buf_flags) 0, \
-            /* .mem =   */ NULL,            \
-            /* .fd =    */ -1,          \
-            /* .pos =   */ 0,           \
-        } }                     \
-    } )
+#define FUSE_BUFVEC_INIT(size__)                                               \
+    ((struct fuse_bufvec) {                                                    \
+        /* .count= */ 1,                                                       \
+        /* .idx =  */ 0,                                                       \
+        /* .off =  */ 0,                                                       \
+        /* .buf =  */ { /* [0] = */ {                                          \
+                                        /* .size =  */ (size__),               \
+                                        /* .flags = */ (enum fuse_buf_flags)0, \
+                                        /* .mem =   */ NULL,                   \
+                                        /* .fd =    */ -1,                     \
+                                        /* .pos =   */ 0,                      \
+                                    } }                                        \
+    })
 
 #ifdef __cplusplus
 }
-#endif
+#endif // ifdef __cplusplus
 
 
 /*
@@ -199,11 +198,14 @@ struct fuse_bufvec {
  * On 32bit systems please add -D_FILE_OFFSET_BITS=64 to your compile flags!
  */
 
-#if defined(__GNUC__) && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 6) && !defined __cplusplus
+#if defined(__GNUC__) && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 6) && \
+    !defined __cplusplus
 _Static_assert(sizeof(off_t) == 8, "fuse: off_t must be 64bit");
-#else
+#else // if defined(__GNUC__) && (__GNUC__ > 4 || __GNUC__ == 4 &&
+      // __GNUC_MINOR__ >= 6) && !defined __cplusplus
 struct _fuse_off_t_must_be_64bit_dummy_struct \
-    { unsigned _fuse_off_t_must_be_64bit:((sizeof(off_t) == 8) ? 1 : -1); };
-#endif
+    { unsigned _fuse_off_t_must_be_64bit : ((sizeof(off_t) == 8) ? 1 : -1); };
+#endif // if defined(__GNUC__) && (__GNUC__ > 4 || __GNUC__ == 4 &&
+       // __GNUC_MINOR__ >= 6) && !defined __cplusplus
 
-#endif /* FUSE_COMMON_H_ */
+#endif  /* FUSE_COMMON_H_ */
