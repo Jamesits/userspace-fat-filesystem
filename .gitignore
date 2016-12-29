@@ -575,5 +575,7 @@ __pycache__/
 # tools/
 
 ### VisualStudio Patch ###
+
 build/
 jsh
+*.img

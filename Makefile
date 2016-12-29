@@ -1,10 +1,10 @@
-SRC = builtin.c  exec.c  jshcore.c  main.c
-PROGRAM = jsh
+SRC = $(wildcard *.c)
+PROGRAM = fs
 OBJ = $(SRC:.c=.o)
-CC = gcc
+CC = clang
 INCLUDE =
 LINKPARAM =
-CFLAGS = -O0 -Wall -Wextra -Wno-unused-parameter -g
+CFLAGS = -O0 -Wall -Wextra -Wno-unused-parameter -g3
 RM_FLAGS =
 
 : $(PROGRAM)

@@ -11,7 +11,7 @@
 #define VERSION_MINOR 0
 #define VERSION_REVISION 3
 
-#define DEFAULT_PS1 "Jsh $ "
+#define DEFAULT_PS1 "filesystem $ "
 
 #define READ_BUF_SIZE 1024
 #define TOKEN_SPLIT_BUF_SIZE 16

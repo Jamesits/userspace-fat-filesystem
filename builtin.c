@@ -1,10 +1,13 @@
 #include "stdafx.h"
+#include "fs_commands.h"
 
 internal_command builtins[] = {
-        BUILTIN_DEF(jsh_cd, "cd"),
-        BUILTIN_DEF(jsh_exit, "exit"),
-        BUILTIN_DEF(ext_exec, "call"),
-        BUILTIN_DEF(jsh_about, "about"),
+    BUILTIN_DEF(jsh_cd, "cd"),
+    BUILTIN_DEF(jsh_exit, "exit"),
+    BUILTIN_DEF(ext_exec, "call"),
+    BUILTIN_DEF(jsh_about, "about"),
+    BUILTIN_DEF(fs_mount, "mount"),
+    BUILTIN_DEF(fs_umount, "umount"),
 };
 
 int builtins_count() { return sizeof(builtins) / sizeof(builtins[0]); }
