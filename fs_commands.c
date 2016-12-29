@@ -25,7 +25,7 @@ int fs_mount(int argc, char **argv)
         fprintf(stderr, "Warning: replacing last mounted image...\n");
         fat_unmount(volume);
     }
-    volume = fat_mount(argv[1], 0);
+    volume = fat_mount(argv[1], FAT_MOUNT_FLAG_READWRITE);
     if (!volume) {
         fprintf(stderr, "Error: mount failed.\n");
     }
