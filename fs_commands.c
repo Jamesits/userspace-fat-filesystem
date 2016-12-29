@@ -18,7 +18,7 @@
 struct fat_volume * volume = NULL;
 char pwd[MAX_PATH_LEN] = "/";
 
-#define fs_mounted_or_fail() if (!volume) { DEBUG("Error: There is no mounted volume!\n"); return -1; }
+#define fs_mounted_or_fail() if (!volume) { fprintf(stderr, "Error: There is no mounted volume!\n"); return -1; }
 
 static inline void inline_strcpy(char *s1, char *s2)
 {
@@ -29,7 +29,7 @@ static inline void inline_strcpy(char *s1, char *s2)
 int fs_create(int argc, char **argv)
 {
     char *mem = malloc(10485760); // this is 10MB space
-    
+
     // write boot sector
     struct fat_boot_sector_disk *bootsec = (struct fat_boot_sector_disk *)mem;
     bootsec->jump_insn[0] = 0xEB;
@@ -94,21 +94,21 @@ int fs_umount(int argc, char **argv)
 int fs_format(int argc, char **argv)
 {
     fs_mounted_or_fail();
-    
+
     // set all sectors as free
     DEBUG("Freeing all sectors...");
     u16 *fat_table = volume->fat_map;
     for (int i = 0; i < volume->bytes_per_sector; ++i) {
         fat_table[i] = 0;
     }
-    
+
     DEBUG("Erasing root entries...");
     // find root entry location
     size_t root_pos = volume->data_start_offset - volume->max_root_entries * sizeof(struct fat_dir_entry_disk);
     DEBUG("Root directory start position: %zu", root_pos);
     long pos = lseek(volume->fd, root_pos, SEEK_SET);
     DEBUG("Seeked to position %ld", pos);
-    
+
     // clear all root entries
     u8 zeros = 0xE5; // unused directory entry start bit
     for (size_t i = 0; i < volume->max_root_entries * sizeof(struct fat_dir_entry_disk); ++i)
@@ -308,13 +308,13 @@ int fs_cat(int argc, char **argv)
 
 int fs_touch(int argc, char **argv) {
     fs_mounted_or_fail();
-    
+
     // find root entry location
     size_t root_pos = volume->data_start_offset - volume->max_root_entries * sizeof(struct fat_dir_entry_disk);
     DEBUG("Root directory start position: %zu", root_pos);
     long pos = lseek(volume->fd, root_pos, SEEK_SET);
     DEBUG("Seeked to position %ld", pos);
-    
+
     int entry_count = -1;
     struct fat_dir_entry_disk *rootdir = malloc(sizeof(struct fat_dir_entry_disk));
     do {
