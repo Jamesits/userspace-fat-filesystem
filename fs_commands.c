@@ -19,6 +19,7 @@ static inline void inline_strcpy(char *s1, char *s2)
     while ((*s1++ = *s2++));
 }
 
+/* Create a new disk image */
 int fs_create(int argc, char **argv)
 {
     char *mem = malloc(10485760); // this is 10MB space

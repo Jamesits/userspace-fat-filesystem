@@ -15,26 +15,6 @@
 #include "fat_util.h"
 #include "fat_volume.h"
 
-/* Format of a FAT directory entry on disk (32 bytes) */
-struct fat_dir_entry_disk {
-	u8 base_name[8];
-	u8 extension[3];
-	u8 attribs;
-	u8 reserved;
-	u8 create_time_fine_res;
-	le16 create_time;
-	le16 create_date;
-	le16 last_access_date;
-	union {
-		le16 file_access_bitmap;
-		le16 fat32_start_cluster_high;
-	};
-	le16 last_modified_time;
-	le16 last_modified_date;
-	le16 start_cluster;
-	le32 file_size;
-} __attribute__((packed));
-
 /* FAT names can be no more than 12 characters long, so we might as well just
  * inline strcmp() to make comparisons faster. */
 static inline int

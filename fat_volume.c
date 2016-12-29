@@ -288,7 +288,7 @@ fat_map_fat(struct fat_volume *vol, int fd, int mount_flags)
 		return -1;
 	}
 
-	DEBUG("Mapping FAT into memory (%zu bytes at offset %zu)",
+	DEBUG("Mapping FAT into memory (%zu bytes at offset %llu)",
 	      fat_size_bytes, fat_offset);
 
 	prot = PROT_READ;

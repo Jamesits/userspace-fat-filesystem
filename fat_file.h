@@ -30,6 +30,26 @@ struct fat_dir_entry {
 	u32 file_size;
 };
 
+/* Format of a FAT directory entry on disk (32 bytes) */
+struct fat_dir_entry_disk {
+    u8 base_name[8];
+    u8 extension[3];
+    u8 attribs;
+    u8 reserved;
+    u8 create_time_fine_res;
+    le16 create_time;
+    le16 create_date;
+    le16 last_access_date;
+    union {
+        le16 file_access_bitmap;
+        le16 fat32_start_cluster_high;
+    };
+    le16 last_modified_time;
+    le16 last_modified_date;
+    le16 start_cluster;
+    le32 file_size;
+} __attribute__((packed));
+
 /* Wrapper around a FAT directory entry that contains members used to put it in
  * data structures, and to use it as a file handle */
 struct fat_file {
